@@ -2,6 +2,8 @@ import type { GetServerSideProps, NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import Modal from '../components/Modal';
+import Row from '../components/Row';
 import { CoinData } from '../types';
 
 type Props = {
@@ -10,6 +12,7 @@ type Props = {
 
 const Home: NextPage<Props> = ({ coinList }) => {
   const [input, setInput] = useState('');
+  // const [isOpen, setIsOpen] = useState(false);
   const filteredCoin = coinList.filter(
     (coin) =>
       coin.name.toLowerCase().includes(input.toLowerCase()) ||
@@ -17,68 +20,43 @@ const Home: NextPage<Props> = ({ coinList }) => {
   );
 
   return (
-    <div className="flex flex-col items-center">
-      <h1>Crypto Tracker</h1>
-      {/* トレンド */}
-      <div></div>
+    <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-orange-100 to-orange-200 lg:text-lg">
+      <h1 className="my-8 text-3xl font-semibold lg:text-5xl">
+        Crypto Tracker
+      </h1>
       {/* 検索 */}
-      <div>
-        <input
-          type="text"
-          placeholder="検索したい通貨を入力"
-          className="block p-2 border outline-none w-60"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-        />
-      </div>
+      <input
+        type="text"
+        placeholder="検索したい通貨を入力"
+        className="block p-4 mb-8 outline-none bg-white/50 w-60 rounded-xl lg:w-96"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+      />
       {/* コイン一覧 */}
-      <div>
-        <ul>
-          {filteredCoin.map((coin) => (
-            <li key={coin.id}>
-              <Link href="#">
-                <a className="flex items-center p-2 border-t">
-                  <div className="relative w-8 h-8 mr-3">
-                    <Image
-                      src={coin.image}
-                      layout="fill"
-                      objectFit="cover"
-                      alt={coin.name}
-                    />
-                  </div>
-                  <div className="w-20">
-                    <div>{coin.name}</div>
-                    <div className="uppercase">{coin.symbol}</div>
-                  </div>
-                  <div className="w-24 text-right ">
-                    ¥{coin.current_price.toLocaleString()}
-                  </div>
-                  {coin.price_change_percentage_24h > 0 ? (
-                    <div className="w-20 text-right text-emerald-500">
-                      {coin.price_change_percentage_24h.toFixed(2)}%
-                    </div>
-                  ) : (
-                    <div className="w-20 text-right text-red-500">
-                      {coin.price_change_percentage_24h.toFixed(2)}%
-                    </div>
-                  )}
-                  <div className="w-40 text-right ">
-                    <span className="">¥{coin.low_24h.toLocaleString()}</span>/
-                    <span className="">¥{coin.high_24h.toLocaleString()}</span>
-                  </div>
-                </a>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <ul className="p-2 border-b">
+        <li className="grid grid-cols-4 font-bold h-14 place-items-center lg:grid-cols-6">
+          <div className="w-24 col-start-2 lg:w-32">通貨名</div>
+          <div>現在価格</div>
+          <div className="text-center">変動率(24h)</div>
+          <div className="hidden lg:block">安値(24h)</div>
+          <div className="hidden lg:block">高値(24h)</div>
+        </li>
+        {filteredCoin.map((coin) => (
+          <Row
+            key={coin.id}
+            coin={coin}
+            // isOpen={isOpen}
+            // setIsOpen={setIsOpen}
+          />
+        ))}
+      </ul>
     </div>
   );
 };
 
 export const getServerSideProps: GetServerSideProps = async () => {
   const res = await fetch(
-    'https://api.coingecko.com/api/v3/coins/markets?vs_currency=jpy&order=market_cap_desc&per_page=10&page=1&sparkline=false'
+    'https://api.coingecko.com/api/v3/coins/markets?vs_currency=jpy&order=market_cap_desc&per_page=100&page=1&sparkline=false'
   );
   const coinList = await res.json();
   return {
