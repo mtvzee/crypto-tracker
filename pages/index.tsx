@@ -2,7 +2,7 @@ import type { GetServerSideProps, NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import Modal from '../components/Modal';
+import Modal from '../components/ModalWindow';
 import Row from '../components/Row';
 import { CoinData } from '../types';
 
